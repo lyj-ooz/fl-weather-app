@@ -16,6 +16,13 @@ class _LoadingState extends State<Loading> {
     print(position);
   }
 
+
+  @override
+  void initState() {
+    getLocation();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
