@@ -11,9 +11,14 @@ class Loading extends StatefulWidget {
 class _LoadingState extends State<Loading> {
 
   void getLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    print(position);
+
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      print(position);
+    } catch(e) {
+      print('에러발생');
+    }
   }
 
 
