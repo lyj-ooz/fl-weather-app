@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Loading extends StatefulWidget {
   const Loading({Key? key}) : super(key: key);
@@ -10,7 +11,6 @@ class Loading extends StatefulWidget {
 }
 
 class _LoadingState extends State<Loading> {
-
   void getLocation() async {
     try {
       LocationPermission permission = await Geolocator.requestPermission();
@@ -32,10 +32,19 @@ class _LoadingState extends State<Loading> {
           'appid': 'b1b15e88fa797225412429c1c50c122a1'
         });
 
-    print(httpsUri);
-
     http.Response response = await http.get(httpsUri);
-    print(response.body);
+
+    if (response.statusCode == 200) {
+      String jsonData = response.body;
+      var weatherDesc = jsonDecode(jsonData)['weather'][0]['description'];
+      var windSpeed = jsonDecode(jsonData)['wind']['speed'];
+      var id = jsonDecode(jsonData)['id'];
+      print(weatherDesc);
+      print(windSpeed);
+      print(id);
+    } else {
+      print(response.statusCode)
+    }
   }
 
   @override
@@ -50,17 +59,14 @@ class _LoadingState extends State<Loading> {
     return Scaffold(
       body: Center(
           child: ElevatedButton(
-            onPressed: () {
-              getLocation();
-            },
-            child: Text(
-              'get my location',
-              style: TextStyle(
-                  color: Colors.white
-              ),
-            ),
-          )
-      ),
+        onPressed: () {
+          getLocation();
+        },
+        child: Text(
+          'get my location',
+          style: TextStyle(color: Colors.white),
+        ),
+      )),
     );
   }
 }
