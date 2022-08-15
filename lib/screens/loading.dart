@@ -22,14 +22,20 @@ class _LoadingState extends State<Loading> {
     latitude = myLocation.latitude;
     longitude = myLocation.longitude;
 
-    print(latitude);
-    print(longitude);
+    Network weatherNetwork = Network('https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apikey&units=metric');
+    var weatherData = await weatherNetwork.getJsonData();
 
-    Network network = Network('https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apikey&units=metric');
-    var weatherData = await network.getJsonData();
+    print('weatherData');
+    print(weatherData);
+
+    Network airNetwork = Network('http://api.openweathermap.org/data/2.5/air_pollution?lat=$latitude&lon=$longitude&appid=$apikey');
+    var airData = await airNetwork.getJsonData();
+
+    print('airData');
+    print(airData);
     
     Navigator.push(context, MaterialPageRoute(builder: (context){
-      return WeatherScreen(parseWeatherData: weatherData,);
+      return WeatherScreen(parseWeatherData: weatherData, parseAirPollutionData: airData,);
     }));
   }
 

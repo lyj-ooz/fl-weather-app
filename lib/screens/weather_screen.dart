@@ -2,34 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:intl/intl.dart';
+import 'package:my_fl_weather/model/model.dart';
 
 class WeatherScreen extends StatefulWidget {
-  WeatherScreen({this.parseWeatherData});
+  WeatherScreen({this.parseWeatherData, this.parseAirPollutionData});
 
   final parseWeatherData;
+  final parseAirPollutionData;
 
   @override
   State<WeatherScreen> createState() => _WeatherScreenState();
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
+  Model model = Model();
   late String cityName;
   late int temp;
+  Widget? icon;
+  String desc = '';
   late String currentTime = getSystemTime();
   var date = DateTime.now();
+
+  Widget? airIcon = Image.asset('');
+  Widget? airState = Text('');
+  double fineDust = 0.0;
+  double extraFineDust = 0.0;
 
   @override
   void initState() {
     super.initState();
-    updateData(widget.parseWeatherData);
+    updateData(widget.parseWeatherData, widget.parseAirPollutionData);
   }
 
-  void updateData(dynamic weatherData) {
+  void updateData(dynamic weatherData, dynamic airData) {
     cityName = weatherData['name'];
     temp = weatherData['main']['temp'].toInt();
+    desc = weatherData['weather'][0]['description'];
+    int condition = weatherData['weather'][0]['id'];
+    icon = model.getWeatherIcon(condition);
 
-    print(cityName);
-    print(temp);
+    int index = airData['list'][0]['main']['aqi'];
+    airIcon = model.getAirIcon(index);
+    airState = model.getAirCondition(index);
+    fineDust = airData['list'][0]['components']['pm2_5'];
+    extraFineDust = airData['list'][0]['components']['pm10'];
   }
 
   String getSystemTime() {
@@ -79,11 +95,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(
-                                height: 150.0,
-                              ),
+                              SizedBox(height: 150.0,),
                               Text(
-                                'Seoul',
+                                cityName,
                                 style: TextStyle(
                                     fontSize: 35.0, color: Colors.white),
                               ),
@@ -115,7 +129,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '18\u2103',
+                                '$temp\u2103',
                                 style: TextStyle(
                                     fontSize: 85.0,
                                     fontWeight: FontWeight.w300,
@@ -123,14 +137,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               ),
                               Row(
                                 children: [
-                                  SvgPicture.asset('svg/climacon-sun.svg'),
-                                  SizedBox(
-                                    width: 10.0,
-                                  ),
+                                  icon!,
+                                  SizedBox(width: 10.0),
                                   Text(
-                                    'clear sky',
+                                    desc,
                                     style: TextStyle(
-                                        fontSize: 16.0, color: Colors.white),
+                                        fontSize: 16.0,
+                                        color: Colors.white
+                                    ),
                                   )
                                 ],
                               )
@@ -153,22 +167,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   style: TextStyle(
                                       fontSize: 14.0, color: Colors.white),
                                 ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                Image.asset('image/bad.png',
-                                  width: 37.0,
-                                  height: 35.0,
-                                ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                Text(
-                                  '매우 나쁨',
-                                  style: TextStyle(
-                                      fontSize: 14.0, color: Colors.black87,
-                                  fontWeight: FontWeight.bold),
-                                ),
+                                SizedBox(height: 10.0,),
+                                airIcon!,
+                                SizedBox(height: 10.0,),
+                                airState!
                               ],
                             ),
                             Column(
@@ -182,13 +184,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   height: 10.0,
                                 ),
                                 Text(
-                                  '174.75',
+                                  fineDust.toString(),
                                   style: TextStyle(
                                       fontSize: 24.0, color: Colors.white),
                                 ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
+                                SizedBox(height: 10.0),
                                 Text(
                                   '㎍/㎥',
                                   style: TextStyle(
@@ -208,7 +208,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   height: 10.0,
                                 ),
                                 Text(
-                                  '84.03',
+                                  extraFineDust.toString(),
                                   style: TextStyle(
                                       fontSize: 24.0, color: Colors.white),
                                 ),
