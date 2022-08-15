@@ -3,6 +3,7 @@ import 'package:my_fl_weather/data/my_location.dart';
 import 'package:my_fl_weather/screens/weather_screen.dart';
 
 import '../data/network.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 const apikey = 'f6526eecd6f1af5e9adcdc5ec3c1e633';
 
 class Loading extends StatefulWidget {
@@ -22,14 +23,20 @@ class _LoadingState extends State<Loading> {
     latitude = myLocation.latitude;
     longitude = myLocation.longitude;
 
-    print(latitude);
-    print(longitude);
+    Network weatherNetwork = Network('https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apikey&units=metric');
+    var weatherData = await weatherNetwork.getJsonData();
 
-    Network network = Network('https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apikey&units=metric');
-    var weatherData = await network.getJsonData();
+    print('weatherData');
+    print(weatherData);
+
+    Network airNetwork = Network('http://api.openweathermap.org/data/2.5/air_pollution?lat=$latitude&lon=$longitude&appid=$apikey');
+    var airData = await airNetwork.getJsonData();
+
+    print('airData');
+    print(airData);
     
     Navigator.push(context, MaterialPageRoute(builder: (context){
-      return WeatherScreen(parseWeatherData: weatherData,);
+      return WeatherScreen(parseWeatherData: weatherData, parseAirPollutionData: airData,);
     }));
   }
 
@@ -43,15 +50,11 @@ class _LoadingState extends State<Loading> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: ElevatedButton(
-        onPressed: () {
-          getLocation();
-        },
-        child: Text(
-          'get my location',
-          style: TextStyle(color: Colors.white),
-        ),
-      )),
+        child: SpinKitDoubleBounce(
+          color: Colors.white,
+          size: 80.0,
+        )
+      )
     );
   }
 }

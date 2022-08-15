@@ -14,6 +14,5 @@ class Network {
       var parsingData = jsonDecode(jsonData);
       return parsingData;
     }
-
   }
 }
